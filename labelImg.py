@@ -48,6 +48,7 @@ from libs.create_ml_io import CreateMLReader
 from libs.create_ml_io import JSON_EXT
 from libs.ustr import ustr
 from libs.hashableQListWidgetItem import HashableQListWidgetItem
+import qdarkstyle
 
 __appname__ = 'labelImg'
 
@@ -381,7 +382,7 @@ class MainWindow(QMainWindow, WindowMixin):
         # Auto saving : Enable auto saving if pressing next
         self.autoSaving = QAction(getStr('autoSaveMode'), self)
         self.autoSaving.setCheckable(True)
-        self.autoSaving.setChecked(settings.get(SETTING_AUTO_SAVE, False))
+        self.autoSaving.setChecked(settings.get(SETTING_AUTO_SAVE, True))
         # Sync single class mode from PR#106
         self.singleClassMode = QAction(getStr('singleClsMode'), self)
         self.singleClassMode.setShortcut("Ctrl+Shift+S")
@@ -392,11 +393,11 @@ class MainWindow(QMainWindow, WindowMixin):
         self.displayLabelOption = QAction(getStr('displayLabel'), self)
         self.displayLabelOption.setShortcut("Ctrl+Shift+P")
         self.displayLabelOption.setCheckable(True)
-        self.displayLabelOption.setChecked(settings.get(SETTING_PAINT_LABEL, False))
+        self.displayLabelOption.setChecked(settings.get(SETTING_PAINT_LABEL, True))
         self.displayLabelOption.triggered.connect(self.togglePaintLabelsOption)
 
         addActions(self.menus.file,
-                   (open, opendir, copyPrevBounding, changeSavedir, openAnnotation, self.menus.recentFiles, save, save_format, saveAs, close, resetAll, deleteImg, quit))
+                   (open, opendir, copyPrevBounding, openAnnotation, self.menus.recentFiles, save, save_format, saveAs, close, resetAll, deleteImg, quit))
         addActions(self.menus.help, (help, showInfo))
         addActions(self.menus.view, (
             self.autoSaving,
@@ -421,7 +422,7 @@ class MainWindow(QMainWindow, WindowMixin):
             zoomIn, zoom, zoomOut, fitWindow, fitWidth)
 
         self.actions.advanced = (
-            open, opendir, changeSavedir, openNextImg, openPrevImg, save, save_format, None,
+            open, opendir, openNextImg, openPrevImg, save, save_format, None,
             createMode, editMode, None,
             hideAll, showAll)
 
@@ -479,7 +480,7 @@ class MainWindow(QMainWindow, WindowMixin):
                 return x.toBool()
             return bool(x)
 
-        if xbool(settings.get(SETTING_ADVANCE_MODE, False)):
+        if xbool(settings.get(SETTING_ADVANCE_MODE, True)):
             self.actions.advancedMode.setChecked(True)
             self.toggleAdvancedMode()
 
@@ -1093,6 +1094,8 @@ class MainWindow(QMainWindow, WindowMixin):
             self.paintCanvas()
             self.addRecentFile(self.filePath)
             self.toggleActions(True)
+            if self.autoSaving.isChecked():
+                self.defaultSaveDir = os.path.dirname(filePath)
             self.showBoundingBoxFromAnnotationFile(filePath)
 
             self.setWindowTitle(__appname__ + ' ' + filePath)
@@ -1109,7 +1112,7 @@ class MainWindow(QMainWindow, WindowMixin):
     def showBoundingBoxFromAnnotationFile(self, filePath):
         if self.defaultSaveDir is not None:
             basename = os.path.basename(os.path.splitext(filePath)[0])
-            filedir = filePath.split(basename)[0].split(os.path.sep)[-2:-1][0]
+            filedir = os.path.basename(os.path.dirname(filePath))
             xmlPath = os.path.join(self.defaultSaveDir, basename + XML_EXT)
             txtPath = os.path.join(self.defaultSaveDir, basename + TXT_EXT)
             jsonPath = os.path.join(self.defaultSaveDir, filedir + JSON_EXT)
@@ -1331,9 +1334,6 @@ class MainWindow(QMainWindow, WindowMixin):
             if self.defaultSaveDir is not None:
                 if self.dirty is True:
                     self.saveFile()
-            else:
-                self.changeSavedirDialog()
-                return
 
         if not self.mayContinue():
             return
@@ -1362,7 +1362,8 @@ class MainWindow(QMainWindow, WindowMixin):
         if filename:
             if isinstance(filename, (tuple, list)):
                 filename = filename[0]
-            self.loadFile(filename)
+            if filename:
+                self.loadFile(filename)
 
     def saveFile(self, _value=False):
         if self.defaultSaveDir is not None and len(ustr(self.defaultSaveDir)):
@@ -1579,13 +1580,15 @@ def get_main_app(argv=[]):
     Do everything but app.exec_() -- so that we can test the application in one thread
     """
     app = QApplication(argv)
+    # setup stylesheet
+    app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     app.setApplicationName(__appname__)
     app.setWindowIcon(newIcon("app"))
     # Tzutalin 201705+: Accept extra agruments to change predefined class file
     argparser = argparse.ArgumentParser()
     argparser.add_argument("image_dir", nargs="?")
     argparser.add_argument("predefined_classes_file",
-                           default=os.path.join(os.path.dirname(__file__), "data", "predefined_classes.txt"),
+                           default=os.path.join(APP_DATA, "predefined_classes.txt"),
                            nargs="?")
     argparser.add_argument("save_dir", nargs="?")
     args = argparser.parse_args(argv[1:])

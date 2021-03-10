@@ -1,3 +1,4 @@
+import os
 from math import sqrt
 from libs.ustr import ustr
 import hashlib
@@ -11,6 +12,11 @@ try:
 except ImportError:
     from PyQt4.QtGui import *
     from PyQt4.QtCore import *
+
+
+# 定义程序根目录，适用于调试环境及pyinstalled打包程序
+APP_ROOT = os.path.dirname(os.path.realpath(sys.argv[0]))
+APP_DATA = os.path.join(APP_ROOT, 'data')
 
 
 def newIcon(icon):
