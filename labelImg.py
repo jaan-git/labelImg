@@ -375,7 +375,7 @@ class MainWindow(QMainWindow, WindowMixin):
             file=self.menu(getStr('menu_file')),
             edit=self.menu(getStr('menu_edit')),
             view=self.menu(getStr('menu_view')),
-            help=self.menu(getStr('menu_help')),
+            # help=self.menu(getStr('menu_help')),
             recentFiles=QMenu(getStr('menu_openRecent')),
             labelList=labelMenu)
 
@@ -396,15 +396,22 @@ class MainWindow(QMainWindow, WindowMixin):
         self.displayLabelOption.setChecked(settings.get(SETTING_PAINT_LABEL, True))
         self.displayLabelOption.triggered.connect(self.togglePaintLabelsOption)
 
+        # 添加菜单栏
+        # 文件
         addActions(self.menus.file,
-                   (open, opendir, copyPrevBounding, openAnnotation, self.menus.recentFiles, save, save_format, saveAs, close, resetAll, deleteImg, quit))
-        addActions(self.menus.help, (help, showInfo))
+                   (open, opendir,# copyPrevBounding, openAnnotation,
+                    self.menus.recentFiles, save,
+                    # save_format,
+                    saveAs, close, resetAll, deleteImg, quit))
+        # 帮助
+        # addActions(self.menus.help, (help, showInfo))
+        # 查看
         addActions(self.menus.view, (
             self.autoSaving,
             self.singleClassMode,
-            self.displayLabelOption,
-            labels, advancedMode, None,
-            hideAll, showAll, None,
+            # self.displayLabelOption, labels, advancedMode,
+            None,
+            # hideAll, showAll, None,
             zoomIn, zoomOut, zoomOrg, None,
             fitWindow, fitWidth))
 
@@ -422,9 +429,12 @@ class MainWindow(QMainWindow, WindowMixin):
             zoomIn, zoom, zoomOut, fitWindow, fitWidth)
 
         self.actions.advanced = (
-            open, opendir, openNextImg, openPrevImg, save, save_format, None,
+            open, opendir, openNextImg, openPrevImg, save,
+            # save_format,
+            None,
             createMode, editMode, None,
-            hideAll, showAll)
+            # hideAll, showAll
+            )
 
         self.statusBar().showMessage('%s started.' % __appname__)
         self.statusBar().show()
@@ -1582,6 +1592,11 @@ def get_main_app(argv=[]):
     app = QApplication(argv)
     # setup stylesheet
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+    # 界面字体设置
+    font = QFont()
+    font.setFamily(u"Microsoft YaHei UI")
+    font.setPointSize(9)
+    app.setFont(font)
     app.setApplicationName(__appname__)
     app.setWindowIcon(newIcon("app"))
     # Tzutalin 201705+: Accept extra agruments to change predefined class file
