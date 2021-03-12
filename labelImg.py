@@ -50,7 +50,7 @@ from libs.ustr import ustr
 from libs.hashableQListWidgetItem import HashableQListWidgetItem
 import qdarkstyle
 
-__appname__ = 'labelImg'
+__appname__ = '样本标绘'
 
 
 class WindowMixin(object):
@@ -138,7 +138,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
         # Add some of widgets to listLayout
         listLayout.addWidget(self.editButton)
-        listLayout.addWidget(self.diffcButton)
+        # listLayout.addWidget(self.diffcButton)
         listLayout.addWidget(useDefaultLabelContainer)
 
         # Create and add combobox for showing unique labels in group
@@ -1211,6 +1211,7 @@ class MainWindow(QMainWindow, WindowMixin):
         settings[SETTING_PAINT_LABEL] = self.displayLabelOption.isChecked()
         settings[SETTING_DRAW_SQUARE] = self.drawSquaresOption.isChecked()
         settings[SETTING_LABEL_FILE_FORMAT] = self.labelFileFormat
+        settings[SETTING_Maximized] = self.isMaximized()
         settings.save()
 
     def loadRecent(self, filename):
@@ -1611,7 +1612,10 @@ def get_main_app(argv=[]):
     win = MainWindow(args.image_dir,
                      args.predefined_classes_file,
                      args.save_dir)
-    win.show()
+    if win.settings.get(SETTING_Maximized, True):
+        win.showMaximized()
+    else:
+        win.show()
     return app, win
 
 
