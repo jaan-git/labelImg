@@ -399,7 +399,8 @@ class MainWindow(QMainWindow, WindowMixin):
         # 添加菜单栏
         # 文件
         addActions(self.menus.file,
-                   (open, opendir,# copyPrevBounding, openAnnotation,
+                   (open, opendir,
+                    # copyPrevBounding, openAnnotation,
                     self.menus.recentFiles, save,
                     # save_format,
                     saveAs, close, resetAll, deleteImg, quit))
@@ -452,7 +453,7 @@ class MainWindow(QMainWindow, WindowMixin):
         # Add Chris
         self.difficult = False
 
-        ## Fix the compatible issue for qt4 and qt5. Convert the QStringList to python list
+        # Fix the compatible issue for qt4 and qt5. Convert the QStringList to python list
         if settings.get(SETTING_RECENT_FILES):
             if have_qstring():
                 recentFileQStringList = settings.get(SETTING_RECENT_FILES)

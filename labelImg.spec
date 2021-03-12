@@ -27,12 +27,13 @@ exe = EXE(pyz,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          console=False)
+          console=False,
+          icon='resources\\icons\\k-app.ico')
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
                a.datas,
                strip=False,
                upx=True,
-               upx_exclude=[],
-               name='labelImg')
+               upx_exclude=['qwindows.dll','qjpeg.dll'],
+               name='样本标绘工具')
